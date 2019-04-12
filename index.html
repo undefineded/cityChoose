@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<select name="" id="province">
+    <option value="0">省</option>
+</select>
+<select name="" id="city">
+    <option value="0">市</option>
+</select>
+<select name="" id="area">
+    <option value="0">区</option>
+</select>
+</body>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="province-city.js"></script>
+<script>
+  // console.log(provinceData.res.data)
+  selectCity({
+    data:provinceData.res.data,
+    province:'#province',
+    city:'#city',
+    area:'#area',
+    defaultCity:0
+  }, function (d) {
+    console.log(d)
+  })
+
+  function selectCity(d, fn) {
+    let data = d.data
+    let province = d.province
+    let city = d.city
+    let area = d.area
+    let strProvince = ''
+    for (let i = 0; i < data.length; i++) {
+      strProvince += '<option dataId = "'+ data[i].id +'" value="' + i + '">' + data[i].text + '</option>'
+    }
+    let provinceVal,cityVal = ''
+    $(province).html(strProvince)
+    $(province).val(d.defaultCity*1)
+    provinceVal = d.defaultCity*1
+    // console.log(province[provinceVal])
+    let strCity = ''
+    for (let i = 0; i < data[provinceVal].children.length; i++) {
+      strCity += '<option dataId = "'+ data[provinceVal].children[i].id +'" value="' + i + '">' + data[provinceVal].children[i].text + '</option>'
+    }
+    $(city).html(strCity)
+    let strArea = ''
+    cityVal = 0
+    for (let i = 0; i < data[provinceVal].children[cityVal].children.length; i++) {
+      try {
+        strArea += '<option dataId = "'+ data[provinceVal].children[cityVal].children[i].id +'" value="' + i + '">' + data[provinceVal].children[cityVal].children[i].text + '</option>'
+      }catch (e) {
+        alert(i)
+      }
+    }
+    $(area).html(strArea)
+    $(province).on('change', function () {
+        provinceVal = $(this).val() * 1
+        // console.log(province[provinceVal])
+        let strCity = ''
+        for (let i = 0; i < data[provinceVal].children.length; i++) {
+          strCity += '<option dataId = "'+ data[provinceVal].children[i].id +'" value="' + i + '">' + data[provinceVal].children[i].text + '</option>'
+        }
+        $(city).html(strCity)
+        let strArea = ''
+        cityVal = 0
+        // console.log(data[provinceVal].children[cityVal])
+        for (let i = 0; i < data[provinceVal].children[cityVal].children.length; i++) {
+          try {
+            strArea += '<option dataId = "'+ data[provinceVal].children[cityVal].children[i].id +'" value="' + i + '">' + data[provinceVal].children[cityVal].children[i].text + '</option>'
+          }catch (e) {
+            alert(i)
+          }
+        }
+        $(area).html(strArea)
+        fn(getCityData())
+      })
+    $(city).on('change',function () {
+      let strArea = ''
+      cityVal = $(this).val() * 1
+      for (let i = 0; i < data[provinceVal].children[cityVal].children.length; i++) {
+        strArea += '<option dataId="'+ data[provinceVal].children[cityVal].children[i].id +'" value="' + i + '">' + data[provinceVal].children[cityVal].children[i].text + '</option>'
+      }
+      $(area).html(strArea)
+      fn(getCityData())
+    })
+    $(area).on('change',function () {
+      fn(getCityData())
+    })
+    fn(getCityData())
+    function getCityData() {
+      return {
+        'selectCity':[$(province).find("option:selected").text(),$(city).find("option:selected").text(),$(area).find("option:selected").text()],
+        'selectTd':[$(province).find("option:selected").attr('dataId'),$(city).find("option:selected").attr('dataId'),$(area).find("option:selected").attr('dataId')]
+      }
+    }
+  }
+</script>
+</html>
